@@ -1,8 +1,15 @@
 module.exports = (answers) => { 
 let text = 
 `
-# Title
-The user first name is ${answers.firstname}
+# ${answers.title}
+
+## Description
+${answers.description}
+
+## Table of Contents
+
+## Installation
+
 `
 return text;
 }
