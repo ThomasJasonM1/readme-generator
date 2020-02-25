@@ -2,44 +2,52 @@ let inquirer = require('inquirer');
 let fs = require('fs');
 let makeFile = require('./readme-template.js');
 let installationStep = 0;
-let installationSteps = [];
 let answerNumber = 0;
-const responseObject = {};
+const responseObject = { Installation_Steps: [], };
 
 
 const prompts = [
     {
-        name: 'title',
-        message: 'Please enter a title for your project.',
-        type: 'input',
+        name: 'wantsToAddTitle',
+        message: 'Do you want to add a title to your project?',
+        type: 'confirm',
     },
     {
-        name: 'description',
-        message: 'Please wrie a brief description of your project. Press return when finished.',
-        type: 'input',
+        name: 'wantsToAddDescription',
+        message: 'Would you like to add a description?',
+        type: 'confirm',
     },
     {
         name: 'wantsInstallationStep' + installationStep,
         message: 'Would you like to add installation steps?',
         type: 'confirm'
-    },
-    {
-        name: 'thisStep',
-        message: 'Would you like to add inst?',
-        type: 'confirm'
     }
 ];
 
 function onEachAnswer(res) {
-    responseObject[res.name] = res.answer;
-    console.log(res);
+    if (res.wantsToAddTitle) {
+        return prompts.splice(answerNumber, 0, {
+            name: 'Title',
+            message: 'Please enter a title for your project:',
+            type: 'input',
+        });
+    }
+
+    if (res.wantsToAddDescription) {
+        return prompts.splice(answerNumber, 0, {
+            name: 'Description',
+            message: 'Please wrie a brief description of your project:',
+            type: 'input',
+        });
+    }
+
     if (res['wantsInstallationStep' + installationStep] === true) {
         return getInstallationSteps();
     }
+
 }
 
 function getInstallationSteps() {
-    console.log('here');
     installationStep++;
     return prompts.splice(answerNumber, 0, {
         name: 'installationStep',
@@ -55,13 +63,37 @@ function getInstallationSteps() {
 }
 
 async function askQuestions(number) {
-    console.log(prompts.length);
     await inquirer.prompt(prompts[number])
-        .then (async answer => {
+        .then (answer => {
+            let promptName = prompts[answerNumber].name;
+            let promptType = prompts[answerNumber].type;
             console.log(answer);
+            if (promptType === 'input' && answer[promptName]=== '') {
+                switch (promptType) {
+                    case 'input':
+                        console.log(`You must enter something for "${promptName}", please try again!`);
+                        break;
+                
+                    default:
+                        break;
+                }
+                return askQuestions(answerNumber);
+            }
+            if (!promptName.startsWith('wants')) {
+                if (promptName.startsWith('installationStep')) {
+                    responseObject['Installation_Steps'].push(answer[promptName]);
+                } else {
+                    responseObject[promptName] = answer[promptName];
+                }
+            }
+            
             answerNumber++;
-            await onEachAnswer(answer);
-            askQuestions(answerNumber);
+            onEachAnswer(answer);
+            if (answerNumber < prompts.length)
+            {
+                askQuestions(answerNumber);
+            }
+            console.log(responseObject);
         })
 }
 
