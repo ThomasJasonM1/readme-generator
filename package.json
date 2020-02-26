@@ -4,6 +4,8 @@
   "description": "This program will generate a README file after a user answers a series of questions via the terminal",
   "main": "index.js",
   "dependencies": {
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
     "inquirer": "^7.0.4",
     "puppeteer": "^2.1.1"
   },

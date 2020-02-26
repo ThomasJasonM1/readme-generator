@@ -1,7 +1,7 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const makeFile = require('./readme-template.js');
-const responseObject = { Installation: [], };
+const responseObject = {  };
 
 let installationStep = 0;
 let contributorNumber = 0;
@@ -67,6 +67,7 @@ function onEachAnswer(res) {
     }
 
     if (res['wantsInstallationStep' + installationStep] === true) {
+        responseObject.Installation = [];
         return getInstallationSteps();
     }
 
@@ -88,14 +89,9 @@ function onEachAnswer(res) {
 function getContributorSteps() {
     contributorNumber++;
     return prompts.splice(answerNumber, 0, {
-        name: 'contributor' + contributorNumber,
-        message: `Please add the name of contributor #${contributorNumber}:`,
+        name: 'contributor',
+        message: `Please add the gitHub username of contributor #${contributorNumber}:`,
         type: 'input',
-    },
-    {
-        name: 'contributorGit' + contributorNumber,
-        message: 'Please add the github username for this contributor:',
-        type: 'input'
     },
     {
         name: 'wantsContributorStep' + contributorNumber,
@@ -141,20 +137,7 @@ async function askQuestions(number) {
                 if (promptName.startsWith('installationStep')) {
                     responseObject['Installation'].push(answer[promptName]);
                 } else if (promptName.startsWith('contributor')) {
-                    console.log(contributorNumber);
-                    console.log(responseObject.Contributors[promptName.substring(0, promptName.length - 1) + contributorNumber]);
-                    let contributorExists = responseObject.Contributors[promptName];
-                    if (!contributorExists) {
-                        let name = { 
-                            promptName: 
-                            {
-                                contributor: answer[promptName], 
-                            }
-                        };
-                        responseObject.Contributors.push(name);
-                    } else {
-                        contributorExists.github = answer[promptName];
-                    }
+                    responseObject['Contributors'].push(answer[promptName].replace('@', ''));
                 }
                 else {
                     responseObject[promptName] = answer[promptName];
@@ -167,7 +150,9 @@ async function askQuestions(number) {
             {
                 askQuestions(answerNumber);
             } else {
-                fs.writeFile('./README.md', makeFile(responseObject), () => {});
+                new Promise(resolve => {
+                    makeFile(responseObject, resolve);
+                }).then(res => fs.writeFile('./README.md', res, () => {}))
             }
             console.log(responseObject);
         })
