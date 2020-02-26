@@ -4,7 +4,8 @@
   "description": "This program will generate a README file after a user answers a series of questions via the terminal",
   "main": "index.js",
   "dependencies": {
-    "inquirer": "^7.0.4"
+    "inquirer": "^7.0.4",
+    "puppeteer": "^2.1.1"
   },
   "devDependencies": {},
   "scripts": {
