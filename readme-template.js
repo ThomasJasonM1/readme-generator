@@ -33,7 +33,7 @@ module.exports = (answers, resolve) => {
     }
 
     if (answers.Title && answers.Title !== '') {
-        titleString = `# ${answers.Title}`;
+        titleString = `# ${answers.Title}\n___`;
     }
 
     if (answers.Description && answers.Description !== '') {
