@@ -38,10 +38,32 @@ const prompts = [
         name: 'wantsContributorStep' + contributorNumber,
         message: 'Would you like to add a contributor?',
         type: 'confirm'
+    },
+    {
+        name: 'wantsTestsStep',
+        message: 'Would you like to add a test command?',
+        type: 'confirm'
+    }
+    ,
+    {
+        name: 'wantsQuestionsStep',
+        message: 'Would you like to add an email address where you can take questions questions?',
+        type: 'confirm'
+    },
+    {
+        name: 'wantsBadgesStep',
+        message: 'Would you like to add badges?',
+        type: 'confirm'
+    }
+    ,
+    {
+        name: 'readmePath',
+        message: 'Please specify README file path:',
+        type: 'input'
     }
 ];
 
-function onEachAnswer(res) {
+const onEachAnswer = (res) => {
     if (res.wantsToAddTitle) {
         return prompts.splice(answerNumber, 0, {
             name: 'Title',
@@ -67,41 +89,66 @@ function onEachAnswer(res) {
     }
 
     if (res['wantsInstallationStep' + installationStep] === true) {
-        responseObject.Installation = [];
+        if (!responseObject['Installation']) { responseObject.Installation = []; }
         return getInstallationSteps();
     }
 
     if (res['wantsContributorStep' + contributorNumber] === true) {
-        responseObject.Contributors = [];
+        if (!responseObject['Contributors']) { responseObject.Contributors = []; }
         return getContributorSteps();
     }
 
     if (res.wantsLicenseStep) {
         return prompts.splice(answerNumber, 0, {
             name: 'License',
-            message: 'Please type or paste your license:',
+            message: 'Please add a license:',
             type: 'input',
         });
     }
 
+    if (res.wantsTestsStep) {
+        return prompts.splice(answerNumber, 0, {
+            name: 'Tests',
+            message: 'Please type your test command:',
+            type: 'input',
+        });
+    }
+    
+    if (res.wantsQuestionsStep) {
+        return prompts.splice(answerNumber, 0, {
+            name: 'Questions',
+            message: 'Please type the email address where you can be reached for questions:',
+            type: 'input',
+        });
+    }
+
+    if (res.wantsBadgesStep) {
+        return prompts.splice(answerNumber, 0, {
+            name: 'Badges',
+            message: 'Please select the badges you want to add:',
+            type: 'checkbox',
+            choices: ['node', 'javascript', 'html', 'css', 'react', 'java', 'npm']
+        });
+    }
 }
 
-function getContributorSteps() {
+const getContributorSteps = () => {
     contributorNumber++;
     return prompts.splice(answerNumber, 0, {
         name: 'contributor',
         message: `Please add the gitHub username of contributor #${contributorNumber}:`,
         type: 'input',
-    },
-    {
-        name: 'wantsContributorStep' + contributorNumber,
-        message: 'Would you like to add another contributor?',
-        type: 'confirm'
     });
+    // ,
+    // {
+    //     name: 'wantsContributorStep' + contributorNumber,
+    //     message: 'Would you like to add another contributor (this doesn\'t work yet)?',
+    //     type: 'confirm'
+    // });
 
 }
 
-function getInstallationSteps() {
+const getInstallationSteps = () => {
     installationStep++;
     return prompts.splice(answerNumber, 0, {
         name: 'installationStep',
@@ -116,12 +163,11 @@ function getInstallationSteps() {
 
 }
 
-async function askQuestions(number) {
-    await inquirer.prompt(prompts[number])
+const askQuestions = (number) => {
+    inquirer.prompt(prompts[number])
         .then (answer => {
             let promptName = prompts[answerNumber].name;
             let promptType = prompts[answerNumber].type;
-            console.log(answer);
             if (promptType === 'input' && answer[promptName]=== '') {
                 switch (promptType) {
                     case 'input':
@@ -152,9 +198,10 @@ async function askQuestions(number) {
             } else {
                 new Promise(resolve => {
                     makeFile(responseObject, resolve);
-                }).then(res => fs.writeFile('./README.md', res, () => {}))
+                }).then(res => fs.writeFile(answer.readmePath, res, () => {
+                    console.log('README has been generated!');
+                }))
             }
-            console.log(responseObject);
         })
 }
 
