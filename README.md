@@ -4,6 +4,7 @@
 ![](https://img.shields.io/badge/npm%20-red.svg)
 
 # README Generator
+___
 
 ## Description
 ___
@@ -24,8 +25,8 @@ ___
 ## Installation
 ___
 1. You will need to fork this code from github
-1. Run \`npm i\` from the root directory
-1. Type \`node .\` to start the program
+1. Run `npm i` from the root directory
+1. Type `node .` to start the program
 
 
 
